@@ -1,0 +1,4 @@
+packages/ghost/models/*.onnx filter=lfs diff=lfs merge=lfs -text
+packages/ghost/models/*.pt filter=lfs diff=lfs merge=lfs -text
+packages/ghost/models/*.pth filter=lfs diff=lfs merge=lfs -text
+packages/ghost/models/*.bin filter=lfs diff=lfs merge=lfs -text
