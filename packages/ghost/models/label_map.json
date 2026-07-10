@@ -1,0 +1,30 @@
+{
+  "label2idx": {
+    "approve": 0,
+    "borrow": 1,
+    "bridge": 2,
+    "complex": 3,
+    "earn": 4,
+    "provide_liquidity": 5,
+    "query": 6,
+    "remove_liquidity": 7,
+    "repay": 8,
+    "send": 9,
+    "stake": 10,
+    "swap": 11
+  },
+  "idx2label": {
+    "0": "approve",
+    "1": "borrow",
+    "2": "bridge",
+    "3": "complex",
+    "4": "earn",
+    "5": "provide_liquidity",
+    "6": "query",
+    "7": "remove_liquidity",
+    "8": "repay",
+    "9": "send",
+    "10": "stake",
+    "11": "swap"
+  }
+}
