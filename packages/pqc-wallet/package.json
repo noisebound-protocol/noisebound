@@ -1,0 +1,51 @@
+{
+  "name": "@noisebound/pqc-wallet",
+  "version": "1.0.2",
+  "description": "Quantum-resistant wallet primitives for AI agents and humans",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@noble/hashes": "^1.6.0",
+    "@noble/post-quantum": "^0.2.1",
+    "ethers": "^6.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^2.0.0"
+  },
+  "keywords": [
+    "veil",
+    "post-quantum",
+    "pqc",
+    "quantum-resistant",
+    "base",
+    "defi",
+    "x402",
+    "ml-dsa-65",
+    "ml-kem-768"
+  ]
+}

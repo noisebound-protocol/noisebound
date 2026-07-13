@@ -1,0 +1,63 @@
+{
+  "name": "@noisebound/ghost",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Ghost — Veil's private AI agent. Parses intent, reasons through DeFi execution on Base, and trains on encrypted Octra Circle data. Always addresses the user as Sovereign.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@noble/hashes": "^1.6.0",
+    "@noble/post-quantum": "^0.2.1",
+    "@noisebound/circles": "workspace:*",
+    "@noisebound/pqc-wallet": "workspace:*",
+    "@noisebound/x402-pqc": "workspace:*",
+    "@xenova/transformers": "^2.17.2",
+    "ethers": "^6.13.0",
+    "node-fetch": "^3.3.2",
+    "onnxruntime-node": "^1.27.0",
+    "viem": "^2.21.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^2.0.0"
+  },
+  "keywords": [
+    "ghost",
+    "veil",
+    "ai-agent",
+    "defi",
+    "octra",
+    "fhe",
+    "post-quantum",
+    "base",
+    "aave",
+    "uniswap",
+    "aerodrome"
+  ]
+}

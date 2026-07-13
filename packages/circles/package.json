@@ -1,0 +1,57 @@
+{
+  "name": "@noisebound/circles",
+  "version": "1.0.3",
+  "description": "Octra Circle interface for private agent execution — sealed FHE environments for DeFi routing, key management, and VeilLM inference",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "devnet-test": "GHOST_OCTRA_DEVNET=1 npx tsx scripts/devnet-test.ts"
+  },
+  "dependencies": {
+    "@noble/hashes": "^1.6.0",
+    "@noble/post-quantum": "^0.2.1",
+    "@noisebound/pqc-wallet": "workspace:*",
+    "axios": "^1.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^2.0.0"
+  },
+  "keywords": [
+    "octra",
+    "circles",
+    "fhe",
+    "sealed-execution",
+    "defi",
+    "agent",
+    "post-quantum",
+    "veil",
+    "veilLM"
+  ]
+}
