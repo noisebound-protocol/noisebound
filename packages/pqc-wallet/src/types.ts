@@ -32,3 +32,14 @@ export interface RevocationRegistry {
   revoke(tokenId: string): void;
   isRevoked(tokenId: string): boolean;
 }
+
+/** A wallet with native-token balance used to gas-fund newly issued session keys. */
+export interface FunderWallet {
+  readonly privateKey: `0x${string}`;
+}
+
+/** Result of composing capability issuance with an on-chain funding transfer. */
+export interface IssueAndFundResult {
+  readonly capability: SessionCapability;
+  readonly fundingTxHash: `0x${string}`;
+}
