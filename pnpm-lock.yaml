@@ -43,6 +43,28 @@ importers:
         specifier: ^2.0.0
         version: 2.1.9(@types/node@20.19.43)
 
+  packages/cloud-request:
+    dependencies:
+      '@noisebound/attest':
+        specifier: workspace:*
+        version: link:../attest
+      '@noisebound/blind-pay':
+        specifier: workspace:*
+        version: link:../blind-pay
+      '@noisebound/pqc-wallet':
+        specifier: workspace:*
+        version: link:../pqc-wallet
+    devDependencies:
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.0.0
+        version: 2.1.9(@types/node@20.19.43)
+
   packages/identity:
     dependencies:
       '@noble/post-quantum':
