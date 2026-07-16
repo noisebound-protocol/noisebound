@@ -1,0 +1,33 @@
+{
+  "name": "@noisebound/pqc-wallet",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Hybrid ML-DSA-65 identity / secp256k1 session-key signing for Noisebound",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.typecheck.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@noisebound/identity": "workspace:*",
+    "@noisebound/networks": "workspace:*",
+    "ethers": "^6.17.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^2.0.0"
+  }
+}
