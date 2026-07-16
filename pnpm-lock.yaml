@@ -77,6 +77,31 @@ importers:
         specifier: ^2.0.0
         version: 2.1.9(@types/node@20.19.43)
 
+  packages/x402-pqc:
+    dependencies:
+      '@noisebound/identity':
+        specifier: workspace:*
+        version: link:../identity
+      '@noisebound/networks':
+        specifier: workspace:*
+        version: link:../networks
+      '@noisebound/pqc-wallet':
+        specifier: workspace:*
+        version: link:../pqc-wallet
+      ethers:
+        specifier: ^6.17.0
+        version: 6.17.0
+    devDependencies:
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.43
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.0.0
+        version: 2.1.9(@types/node@20.19.43)
+
 packages:
 
   '@adraffy/ens-normalize@1.11.1':
