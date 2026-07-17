@@ -1,0 +1,36 @@
+{
+  "name": "@noisebound/sigma-execute",
+  "version": "0.0.0",
+  "private": true,
+  "description": "σ-1 execution orchestrator: routes a proposed action through escalation policy, human confirmation, and real execution (on-chain signing or cloud-request authorization)",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.typecheck.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@noisebound/sigma-core": "workspace:*",
+    "@noisebound/pqc-wallet": "workspace:*",
+    "@noisebound/cloud-request": "workspace:*",
+    "@noisebound/attest": "workspace:*",
+    "@noisebound/blind-pay": "workspace:*"
+  },
+  "devDependencies": {
+    "@noisebound/identity": "workspace:*",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^2.0.0"
+  }
+}
