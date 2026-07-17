@@ -2,12 +2,17 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { evaluateEscalation } from '@noisebound/sigma-core';
+import type { ActionRequest, ExecutionOutcome } from '@noisebound/sigma-execute';
 import { EscalationDialog } from '../escalation/EscalationDialog';
+import { ActionTriggerForm } from '../actions/ActionTriggerForm';
+import type { ActionTriggerResult } from '../actions/ActionTriggerForm';
+import { ActionOutcomeDialog } from '../actions/ActionOutcomeDialog';
 import { ESCALATION_SCENARIOS } from '../../lib/fixtures/escalationFixtures';
 import type { EscalationScenario } from '../../lib/fixtures/escalationFixtures';
 import { NOTIFICATION_FIXTURES } from '../../lib/fixtures/notificationFixtures';
 import { appendEscalationLogEntry, loadEscalationLog } from '../../lib/escalationLogStore';
 import { processNotificationFixtures } from '../../lib/notifications';
+import { createMockOnChainExecutor, executeMockOnChainAction } from '../../lib/mockOnChainExecutor';
 import type { EscalationLogEntry } from '../../lib/types';
 import { Panel } from '../ui/Panel';
 import { Button } from '../ui/Button';
@@ -20,6 +25,14 @@ const DAILY_TIER2_LIMIT = 4;
 export function NotificationsPageClient() {
   const [log, setLog] = useState<EscalationLogEntry[]>([]);
   const [activeScenario, setActiveScenario] = useState<EscalationScenario | null>(null);
+  const [activeAction, setActiveAction] = useState<{
+    request: ActionRequest;
+    outcome: ExecutionOutcome;
+  } | null>(null);
+
+  // Single injection point: swap this factory for the real on-chain executor
+  // from build/onchain-executor once that branch merges.
+  const onChainExecutor = useMemo(() => createMockOnChainExecutor(), []);
 
   useEffect(() => {
     setLog(loadEscalationLog());
@@ -29,6 +42,62 @@ export function NotificationsPageClient() {
     () => processNotificationFixtures(NOTIFICATION_FIXTURES, DAILY_TIER2_LIMIT),
     [],
   );
+
+  function handleActionEvaluated({ request, outcome }: ActionTriggerResult) {
+    setActiveAction({ request, outcome });
+  }
+
+  function dismissAction(outcomeLabel: EscalationLogEntry['outcome']) {
+    if (!activeAction) return;
+    setLog(
+      appendEscalationLogEntry({
+        id: `${activeAction.request.id}-${Date.now()}`,
+        timestamp: Date.now(),
+        description: activeAction.request.description,
+        decision: activeAction.outcome.status === 'denied' ? 'deny' : 'require-disclosure',
+        outcome: outcomeLabel,
+      }),
+    );
+    setActiveAction(null);
+  }
+
+  async function handleConfirmAction() {
+    if (!activeAction || activeAction.outcome.status !== 'awaiting-confirmation') return;
+    const { request } = activeAction;
+    if (request.kind !== 'on-chain-money') return;
+
+    try {
+      const txHash = await executeMockOnChainAction(request, onChainExecutor);
+      setActiveAction({
+        request,
+        outcome: {
+          status: 'executed',
+          requestId: request.id,
+          result: { kind: 'on-chain-money', txHash },
+          timestamp: new Date(),
+        },
+      });
+      setLog(
+        appendEscalationLogEntry({
+          id: `${request.id}-${Date.now()}`,
+          timestamp: Date.now(),
+          description: request.description,
+          decision: 'require-disclosure',
+          outcome: 'confirmed',
+        }),
+      );
+    } catch (error) {
+      setActiveAction({
+        request,
+        outcome: {
+          status: 'execution-failed',
+          requestId: request.id,
+          reason: error instanceof Error ? error.message : String(error),
+          timestamp: new Date(),
+        },
+      });
+    }
+  }
 
   function handleTrigger(scenario: EscalationScenario) {
     const decision = evaluateEscalation(scenario.request);
@@ -72,9 +141,17 @@ export function NotificationsPageClient() {
       </div>
 
       <div className={styles.section}>
-        <p className={styles.sectionTitle}>Escalation demo</p>
+        <p className={styles.sectionTitle}>Trigger an action</p>
         <p className={styles.sectionHint}>
-          These simulate requests σ-1 would raise while acting on your behalf.
+          Build a real action request and run it through σ-1&rsquo;s escalation policy.
+        </p>
+        <ActionTriggerForm onEvaluated={handleActionEvaluated} />
+      </div>
+
+      <div className={styles.section}>
+        <p className={styles.sectionTitle}>Escalation demo (fixture scenarios)</p>
+        <p className={styles.sectionHint}>
+          These simulate other request categories σ-1 would raise while acting on your behalf.
         </p>
         <div className={styles.scenarioList}>
           {ESCALATION_SCENARIOS.map((scenario) => (
@@ -97,6 +174,27 @@ export function NotificationsPageClient() {
           onConfirm={() => closeWithOutcome('confirmed')}
           onStayPrivate={() => closeWithOutcome('declined')}
           onAcknowledgeBlocked={() => closeWithOutcome('blocked')}
+        />
+      ) : null}
+
+      {activeAction ? (
+        <ActionOutcomeDialog
+          request={activeAction.request}
+          outcome={activeAction.outcome}
+          log={log}
+          onConfirm={() => void handleConfirmAction()}
+          onDismiss={() => {
+            switch (activeAction.outcome.status) {
+              case 'denied':
+                dismissAction('blocked');
+                return;
+              case 'awaiting-confirmation':
+                dismissAction('declined');
+                return;
+              default:
+                setActiveAction(null);
+            }
+          }}
         />
       ) : null}
     </div>

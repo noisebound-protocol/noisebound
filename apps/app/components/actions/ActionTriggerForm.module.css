@@ -1,0 +1,39 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.label {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.input,
+.select {
+  background: var(--color-bg-inset);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  padding: 0.55rem 0.7rem;
+}
+
+.input:focus,
+.select:focus {
+  outline: 2px solid var(--color-accent-dim);
+  outline-offset: 1px;
+}
+
+.error {
+  color: var(--color-danger);
+  font-size: 0.8rem;
+  margin: 0;
+}
