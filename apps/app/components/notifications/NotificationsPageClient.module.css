@@ -1,0 +1,40 @@
+.title {
+  font-size: 1.4rem;
+  margin: 0 0 1.5rem;
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.sectionTitle {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-secondary);
+  margin: 0 0 0.75rem;
+}
+
+.sectionHint {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  margin: 0 0 0.75rem;
+}
+
+.scenarioList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.scenarioRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+}
+
+.scenarioDescription {
+  font-size: 0.85rem;
+}

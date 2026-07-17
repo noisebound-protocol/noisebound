@@ -1,0 +1,27 @@
+.title {
+  font-size: 1.4rem;
+  margin: 0 0 1.5rem;
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.sectionTitle {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-secondary);
+  margin: 0 0 0.75rem;
+}
+
+.emptyState {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.emptyBody {
+  color: var(--color-text-secondary);
+  font-size: 0.88rem;
+  margin: 0 0 1rem;
+}

@@ -1,0 +1,31 @@
+.title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0 0 0.7rem;
+}
+
+.body {
+  font-size: 0.88rem;
+  color: var(--color-text-secondary);
+  margin: 0 0 1.2rem;
+}
+
+.address {
+  font-family: var(--font-mono);
+  color: var(--color-text-primary);
+}
+
+.error {
+  color: var(--color-danger);
+  font-size: 0.82rem;
+  margin: 0 0 0.8rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.actions > * {
+  flex: 1;
+}

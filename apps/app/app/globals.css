@@ -1,0 +1,65 @@
+:root {
+  --font-mono: var(--font-ibm-plex-mono), 'IBM Plex Mono', ui-monospace, monospace;
+  --font-sans: var(--font-ibm-plex-sans), 'IBM Plex Sans', system-ui, sans-serif;
+
+  --color-bg: #0a0a0b;
+  --color-bg-raised: #101112;
+  --color-bg-inset: #131516;
+  --color-accent: #4ff0ff;
+  --color-accent-dim: #2c8a91;
+  --color-text-primary: #e8fbfc;
+  --color-text-secondary: #7a8c8f;
+  --color-border: #22292a;
+
+  --color-danger: #b56458;
+  --color-danger-bg: #211615;
+  --color-warning: #b8965a;
+  --color-warning-bg: #211d15;
+  --color-success: #6ba885;
+  --color-success-bg: #14201a;
+
+  --ease-sharp: cubic-bezier(0.6, 0, 0.1, 1);
+  --duration-sharp: 160ms;
+  --ease-fluid: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fluid: 620ms;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+code,
+.mono,
+[data-mono] {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}

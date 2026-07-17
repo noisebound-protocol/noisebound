@@ -9,3 +9,5 @@ dist/
 packages/ghost/models/
 
 .turbo/
+
+*.tsbuildinfo

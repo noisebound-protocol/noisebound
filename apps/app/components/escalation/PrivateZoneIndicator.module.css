@@ -1,0 +1,36 @@
+.indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  padding: 0.35em 0.75em;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+}
+
+.active {
+  color: var(--color-accent);
+  border-color: var(--color-accent-dim);
+}
+
+.active .dot {
+  background: var(--color-accent);
+  box-shadow: 0 0 6px var(--color-accent);
+}
+
+.inactive {
+  color: var(--color-warning);
+  border-color: var(--color-warning);
+}
+
+.inactive .dot {
+  background: var(--color-warning);
+}

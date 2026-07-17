@@ -1,0 +1,41 @@
+.log {
+  margin-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  padding-top: 0.75rem;
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.heading {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-secondary);
+  margin: 0 0 0.5rem;
+}
+
+.entry {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  font-size: 0.78rem;
+  padding: 0.3em 0;
+  color: var(--color-text-secondary);
+}
+
+.timestamp {
+  font-family: var(--font-mono);
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.description {
+  color: var(--color-text-primary);
+  flex: 1;
+}
+
+.empty {
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+}

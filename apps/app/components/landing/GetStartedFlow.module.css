@@ -1,0 +1,63 @@
+.flow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.primaryRow {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.importPanel {
+  text-align: left;
+  animation: expand var(--duration-fluid) var(--ease-fluid);
+}
+
+@keyframes expand {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.textarea {
+  width: 100%;
+  min-height: 88px;
+  resize: vertical;
+  background: var(--color-bg-inset);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 0.6rem;
+  margin: 0.6rem 0;
+}
+
+.textarea:focus {
+  outline: 2px solid var(--color-accent-dim);
+  outline-offset: 1px;
+}
+
+.error {
+  color: var(--color-danger);
+  font-size: 0.8rem;
+  margin: 0 0 0.6rem;
+}
+
+.importActions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.hint {
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+  margin: 0 0 0.4rem;
+}
