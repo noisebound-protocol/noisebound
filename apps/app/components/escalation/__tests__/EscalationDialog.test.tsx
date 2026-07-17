@@ -20,10 +20,9 @@ const SWAP_REQUEST: EscalationRequest = {
 };
 
 describe('EscalationDialog', () => {
-  it('blocks money-category requests and never renders a confirm button', () => {
+  it('requires explicit confirmation for money-category requests instead of hard-blocking them', () => {
     const onConfirm = vi.fn();
     const onStayPrivate = vi.fn();
-    const onAcknowledgeBlocked = vi.fn();
 
     render(
       <EscalationDialog
@@ -33,33 +32,38 @@ describe('EscalationDialog', () => {
         log={[]}
         onConfirm={onConfirm}
         onStayPrivate={onStayPrivate}
-        onAcknowledgeBlocked={onAcknowledgeBlocked}
+        onAcknowledgeBlocked={vi.fn()}
       />,
     );
 
-    expect(screen.getByText(/never leaves the private zone/i)).toBeInTheDocument();
-    expect(screen.queryByText('Send $340 to 0x4f2...9a1')).not.toBeInTheDocument();
-    expect(screen.queryByText('Stay private, reduced capability')).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Got it' })).toBeInTheDocument();
+    expect(screen.queryByText(/never leaves the private zone/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Got it' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Send $340 to 0x4f2...9a1' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Stay private, reduced capability' })).toBeInTheDocument();
   });
 
-  it('calls onAcknowledgeBlocked when the blocked state is dismissed', async () => {
+  it('invokes onConfirm and onStayPrivate for a money-category request', async () => {
     const user = userEvent.setup();
-    const onAcknowledgeBlocked = vi.fn();
+    const onConfirm = vi.fn();
+    const onStayPrivate = vi.fn();
 
     render(
       <EscalationDialog
         request={MONEY_REQUEST}
         dataDisclosure={[]}
+        actionText="Send $340 to 0x4f2...9a1"
         log={[]}
-        onConfirm={vi.fn()}
-        onStayPrivate={vi.fn()}
-        onAcknowledgeBlocked={onAcknowledgeBlocked}
+        onConfirm={onConfirm}
+        onStayPrivate={onStayPrivate}
+        onAcknowledgeBlocked={vi.fn()}
       />,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Got it' }));
-    expect(onAcknowledgeBlocked).toHaveBeenCalledOnce();
+    await user.click(screen.getByRole('button', { name: 'Send $340 to 0x4f2...9a1' }));
+    expect(onConfirm).toHaveBeenCalledOnce();
+
+    await user.click(screen.getByRole('button', { name: 'Stay private, reduced capability' }));
+    expect(onStayPrivate).toHaveBeenCalledOnce();
   });
 
   it('names the real action on the confirm button for a confirmable escalation', () => {
