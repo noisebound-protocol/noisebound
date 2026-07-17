@@ -15,6 +15,7 @@
     "@noisebound/networks": "workspace:*",
     "@noisebound/pqc-wallet": "workspace:*",
     "@noisebound/sigma-core": "workspace:*",
+    "@noisebound/sigma-execute": "workspace:*",
     "ethers": "^6.17.0",
     "next": "14.2.35",
     "react": "^18.3.1",

@@ -29,6 +29,9 @@ importers:
       '@noisebound/sigma-core':
         specifier: workspace:*
         version: link:../../packages/sigma-core
+      '@noisebound/sigma-execute':
+        specifier: workspace:*
+        version: link:../../packages/sigma-execute
       ethers:
         specifier: ^6.17.0
         version: 6.17.0
