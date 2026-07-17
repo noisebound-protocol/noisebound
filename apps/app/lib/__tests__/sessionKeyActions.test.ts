@@ -45,6 +45,12 @@ vi.mock('../fixtures/devWallet', () => ({
   DEV_SESSION_FUNDING_WEI: 2_000_000_000_000_000n,
 }));
 
+const registerSessionKey = vi.fn();
+
+vi.mock('../sessionKeyRegistry', () => ({
+  registerSessionKey: (...args: unknown[]) => registerSessionKey(...(args as [])),
+}));
+
 const { issueNewSessionCapability, revokeStoredCapability } = await import('../sessionKeyActions');
 
 const identityKeyPair: IdentityKeyPair = {
@@ -74,6 +80,11 @@ describe('issueNewSessionCapability', () => {
   it('never leaks the generated session key private key into the result', async () => {
     const result = await issueNewSessionCapability(identityKeyPair, scope, ttlMs);
     expect(JSON.stringify(result)).not.toContain(mockSessionKey.privateKey);
+  });
+
+  it('registers the generated session key so the real executor can resolve it later', async () => {
+    await issueNewSessionCapability(identityKeyPair, scope, ttlMs);
+    expect(registerSessionKey).toHaveBeenCalledWith(mockSessionKey);
   });
 });
 

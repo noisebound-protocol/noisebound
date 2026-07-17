@@ -12,7 +12,7 @@ import type { EscalationScenario } from '../../lib/fixtures/escalationFixtures';
 import { NOTIFICATION_FIXTURES } from '../../lib/fixtures/notificationFixtures';
 import { appendEscalationLogEntry, loadEscalationLog } from '../../lib/escalationLogStore';
 import { processNotificationFixtures } from '../../lib/notifications';
-import { createMockOnChainExecutor, executeMockOnChainAction } from '../../lib/mockOnChainExecutor';
+import { executeOnChainMoneyAction } from '../../app/actions/onChainExecution';
 import type { EscalationLogEntry } from '../../lib/types';
 import { Panel } from '../ui/Panel';
 import { Button } from '../ui/Button';
@@ -29,10 +29,6 @@ export function NotificationsPageClient() {
     request: ActionRequest;
     outcome: ExecutionOutcome;
   } | null>(null);
-
-  // Single injection point: swap this factory for the real on-chain executor
-  // from build/onchain-executor once that branch merges.
-  const onChainExecutor = useMemo(() => createMockOnChainExecutor(), []);
 
   useEffect(() => {
     setLog(loadEscalationLog());
@@ -67,7 +63,15 @@ export function NotificationsPageClient() {
     if (request.kind !== 'on-chain-money') return;
 
     try {
-      const txHash = await executeMockOnChainAction(request, onChainExecutor);
+      const txHash = await executeOnChainMoneyAction({
+        id: request.id,
+        description: request.description,
+        amountCents: request.amountCents,
+        currency: request.currency,
+        amountWei: request.amountWei.toString(),
+        recipient: request.recipient,
+        asset: request.asset,
+      });
       setActiveAction({
         request,
         outcome: {

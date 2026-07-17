@@ -1,22 +1,5 @@
 import type { OnChainExecutor, OnChainMoneyActionRequest } from '@noisebound/sigma-execute';
-import type { SessionCapability } from '@noisebound/pqc-wallet';
-
-/**
- * Demo-only stand-in for a real signed session capability. The mock executor
- * below never inspects it — it exists purely so call sites can satisfy
- * OnChainExecutor's real signature ahead of session-capability wiring.
- */
-const DEMO_SESSION_CAPABILITY: SessionCapability = {
-  payload: {
-    id: 'demo-session',
-    sessionAddress: '0x000000000000000000000000000000000000ad',
-    sessionPublicKey: '0x00',
-    scope: { maxSpendWei: '0' },
-    issuedAt: 0,
-    expiresAt: 0,
-  },
-  signature: new Uint8Array(),
-};
+import { DEMO_SESSION_CAPABILITY } from './demoSessionCapability';
 
 function fakeTxHash(request: OnChainMoneyActionRequest): `0x${string}` {
   const seed = `${request.id}:${request.recipient}:${request.amountWei.toString()}`;
@@ -28,9 +11,8 @@ function fakeTxHash(request: OnChainMoneyActionRequest): `0x${string}` {
 }
 
 /**
- * Stand-in for the real on-chain executor landing in build/onchain-executor.
- * Swap this factory's implementation for the real one once that branch
- * merges — every call site that depends on it stays unchanged.
+ * Fake on-chain executor kept around for tests — the app now wires
+ * {@link import('./realOnChainExecutor').createRealOnChainExecutor} by default.
  */
 export function createMockOnChainExecutor(): OnChainExecutor {
   return {
