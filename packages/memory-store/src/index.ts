@@ -5,5 +5,6 @@ export { deriveMemoryEncryptionKey, encryptMemoryEntry, decryptMemoryEntry } fro
 
 export type { MemoryStore } from './store.js';
 export { InMemoryStore } from './in-memory-store.js';
+export { FilesystemStore } from './filesystem-store.js';
 
 export type { SyncCursor, MemorySyncPushResult, MemorySyncPullResult, MemorySyncTransport } from './sync.js';
