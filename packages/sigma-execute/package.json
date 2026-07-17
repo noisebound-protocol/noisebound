@@ -23,9 +23,11 @@
   "dependencies": {
     "@noisebound/sigma-core": "workspace:*",
     "@noisebound/pqc-wallet": "workspace:*",
+    "@noisebound/networks": "workspace:*",
     "@noisebound/cloud-request": "workspace:*",
     "@noisebound/attest": "workspace:*",
-    "@noisebound/blind-pay": "workspace:*"
+    "@noisebound/blind-pay": "workspace:*",
+    "ethers": "^6.17.0"
   },
   "devDependencies": {
     "@noisebound/identity": "workspace:*",

@@ -18,3 +18,11 @@ export type {
 export { evaluateAction } from './evaluate.js';
 export { executeConfirmedAction } from './execute.js';
 export { buildConfirmationSummary } from './confirmation.js';
+export {
+  createEthersOnChainExecutor,
+  SessionKeyNotFoundError,
+  SessionSigningError,
+  InsufficientBalanceError,
+  OnChainBroadcastError,
+} from './onChainExecutor.js';
+export type { SessionKeyResolver } from './onChainExecutor.js';

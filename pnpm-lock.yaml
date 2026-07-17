@@ -224,12 +224,18 @@ importers:
       '@noisebound/cloud-request':
         specifier: workspace:*
         version: link:../cloud-request
+      '@noisebound/networks':
+        specifier: workspace:*
+        version: link:../networks
       '@noisebound/pqc-wallet':
         specifier: workspace:*
         version: link:../pqc-wallet
       '@noisebound/sigma-core':
         specifier: workspace:*
         version: link:../sigma-core
+      ethers:
+        specifier: ^6.17.0
+        version: 6.17.0
     devDependencies:
       '@noisebound/identity':
         specifier: workspace:*
