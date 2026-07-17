@@ -14,13 +14,16 @@ interface BaseEscalationRequest {
 /**
  * An escalation request that touches real money. Deliberately has no
  * override, priority, or "always allow" field of any kind — there is no
- * value that can be placed in this type that changes the outcome of
- * {@link evaluateEscalation}.
+ * value that can be placed in this type that skips the confirmation flow in
+ * {@link evaluateEscalation}. `amountWei` is optional so that callers who
+ * only track a fiat amount still get a (single-confirm) decision; it is
+ * required only to unlock the secondary-confirmation threshold check.
  */
 export interface MoneyEscalationRequest extends BaseEscalationRequest {
   readonly category: 'money';
   readonly amountCents: number;
   readonly currency: string;
+  readonly amountWei?: bigint;
 }
 
 /** An escalation request that does not touch real money. */
@@ -31,20 +34,83 @@ export interface NonMoneyEscalationRequest extends BaseEscalationRequest {
 
 export type EscalationRequest = MoneyEscalationRequest | NonMoneyEscalationRequest;
 
-export type EscalationDecision = 'allow' | 'deny' | 'require-disclosure';
+export type EscalationDecision =
+  | 'allow'
+  | 'deny'
+  | 'require-disclosure'
+  | 'require-confirmation'
+  | 'require-secondary-confirmation';
+
+/** Governs how much friction a money escalation must clear before execution. */
+export interface MoneyEscalationOptions {
+  /**
+   * Spend threshold, in wei. Money requests at or below this amount need a
+   * single explicit confirmation; requests above it need a second, separate
+   * explicit confirmation on top of the first.
+   */
+  readonly maxSpendWei: bigint;
+}
+
+/** 1 ETH, in wei. A conservative default for callers that don't configure their own. */
+const DEFAULT_MAX_SPEND_WEI = 1_000_000_000_000_000_000n;
+
+export const DEFAULT_MONEY_ESCALATION_OPTIONS: MoneyEscalationOptions = {
+  maxSpendWei: DEFAULT_MAX_SPEND_WEI,
+};
+
+/** Confirmation state gathered from a human for a single escalation request. */
+export interface EscalationConfirmation {
+  readonly confirmed: boolean;
+  /** Only required (and only checked) once the request clears the secondary-confirmation threshold. */
+  readonly secondaryConfirmed?: boolean;
+}
 
 /**
  * Evaluates whether an action may leave the private zone.
  *
- * Any request in the `money` category is hard-denied. This is not a
- * configurable rule: `MoneyEscalationRequest` has no field that could flip
- * the branch below, so there is no override to plumb through and no
- * "always allow" toggle to disable.
+ * Money requests are default-deny in the sense that they never auto-execute:
+ * every money request comes back as `require-confirmation` or
+ * `require-secondary-confirmation`, never `allow`, no matter how small the
+ * amount. There is no field on {@link MoneyEscalationRequest} that can skip
+ * this — the only way a money action ever executes is through
+ * {@link confirmEscalation} after a human has actually confirmed it.
  */
-export function evaluateEscalation(request: EscalationRequest): EscalationDecision {
+export function evaluateEscalation(
+  request: EscalationRequest,
+  options: MoneyEscalationOptions = DEFAULT_MONEY_ESCALATION_OPTIONS,
+): EscalationDecision {
   if (request.category === 'money') {
-    return 'deny';
+    if (request.amountWei !== undefined && request.amountWei > options.maxSpendWei) {
+      return 'require-secondary-confirmation';
+    }
+    return 'require-confirmation';
   }
 
   return request.requiresDisclosure ? 'require-disclosure' : 'allow';
+}
+
+/**
+ * Applies a human's confirmation to an escalation request and returns the
+ * resulting decision. A `require-confirmation` decision only becomes `allow`
+ * once `confirmed` is true; a `require-secondary-confirmation` decision only
+ * becomes `allow` once both `confirmed` and `secondaryConfirmed` are true.
+ * Anything that wasn't awaiting confirmation in the first place (e.g. a
+ * `deny`) passes through unchanged — confirming can never override a deny.
+ */
+export function confirmEscalation(
+  request: EscalationRequest,
+  confirmation: EscalationConfirmation,
+  options: MoneyEscalationOptions = DEFAULT_MONEY_ESCALATION_OPTIONS,
+): EscalationDecision {
+  const decision = evaluateEscalation(request, options);
+
+  if (decision === 'require-confirmation') {
+    return confirmation.confirmed ? 'allow' : decision;
+  }
+
+  if (decision === 'require-secondary-confirmation') {
+    return confirmation.confirmed && confirmation.secondaryConfirmed ? 'allow' : decision;
+  }
+
+  return decision;
 }

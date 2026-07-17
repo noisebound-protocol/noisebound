@@ -7,8 +7,14 @@ export type {
   NonMoneyEscalationRequest,
   NonMoneyEscalationCategory,
   EscalationDecision,
+  MoneyEscalationOptions,
+  EscalationConfirmation,
 } from './escalation.js';
-export { evaluateEscalation } from './escalation.js';
+export {
+  evaluateEscalation,
+  confirmEscalation,
+  DEFAULT_MONEY_ESCALATION_OPTIONS,
+} from './escalation.js';
 
 export type {
   NotificationEvent,

@@ -1,4 +1,5 @@
 import type { SessionCapabilityPayload } from '@noisebound/pqc-wallet';
+import type { EscalationDecision } from '@noisebound/sigma-core';
 
 /** Wire/storage form of a {@link import('@noisebound/pqc-wallet').SessionCapability} — signature as base64 instead of raw bytes. */
 export interface SerializedSessionCapability {
@@ -22,6 +23,6 @@ export interface EscalationLogEntry {
   readonly id: string;
   readonly timestamp: number;
   readonly description: string;
-  readonly decision: 'allow' | 'deny' | 'require-disclosure';
+  readonly decision: EscalationDecision;
   readonly outcome: 'confirmed' | 'declined' | 'blocked' | 'auto-allowed';
 }
