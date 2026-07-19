@@ -60,6 +60,16 @@
   background: var(--color-danger-bg);
 }
 
+.warning {
+  background: var(--color-warning);
+  color: #211d15;
+  border-color: var(--color-warning);
+}
+
+.warning:hover:not(:disabled) {
+  background: #d1af74;
+}
+
 .fullWidth {
   width: 100%;
 }
