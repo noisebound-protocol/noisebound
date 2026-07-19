@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { evaluateEscalation } from '@noisebound/sigma-core';
 import type { EscalationRequest } from '@noisebound/sigma-core';
 import { Button } from '../ui/Button';
@@ -8,6 +9,11 @@ import type { EscalationDataDisclosureItem, EscalationLogEntry } from '../../lib
 import { EscalationLog } from './EscalationLog';
 import { PrivateZoneIndicator } from './PrivateZoneIndicator';
 import styles from './EscalationDialog.module.css';
+
+/** Formats cents as the plain decimal string a user must retype to arm a secondary confirmation, e.g. 34000 -> "340.00". */
+function formatExpectedAmount(amountCents: number): string {
+  return (amountCents / 100).toFixed(2);
+}
 
 export interface EscalationDialogProps {
   readonly request: EscalationRequest;
@@ -31,6 +37,76 @@ export function EscalationDialog({
 }: EscalationDialogProps) {
   const decision = evaluateEscalation(request);
   const titleId = 'escalation-dialog-title';
+  const [armed, setArmed] = useState(false);
+  const [typedAmount, setTypedAmount] = useState('');
+
+  if (decision === 'require-secondary-confirmation' && request.category === 'money') {
+    const confirmLabel = actionText ?? request.description;
+    const expectedAmount = formatExpectedAmount(request.amountCents);
+    const amountMatches = typedAmount.trim() === expectedAmount;
+
+    return (
+      <Modal titleId={titleId}>
+        <header className={styles.header}>
+          <h2 id={titleId} className={styles.titleWarning}>
+            Extra confirmation required
+          </h2>
+          <PrivateZoneIndicator active={false} />
+        </header>
+        <div className={styles.secondaryBanner}>
+          <span className={styles.secondaryIcon} aria-hidden="true">
+            ⚠
+          </span>
+          <div>
+            <p className={styles.secondaryTitle}>This exceeds your spend-limit threshold</p>
+            <p className={styles.secondaryBody}>{request.description}</p>
+          </div>
+        </div>
+        <ul className={styles.disclosureList}>
+          {dataDisclosure.map((item) => (
+            <li className={styles.disclosureRow} key={item.label}>
+              <span className={styles.disclosureLabel}>{item.label}</span>
+              <span className={styles.disclosureValue} data-mono>
+                {item.value}
+              </span>
+            </li>
+          ))}
+        </ul>
+        {!armed ? (
+          <div className={styles.actions}>
+            <Button variant="warning" fullWidth onClick={() => setArmed(true)}>
+              {confirmLabel}
+            </Button>
+            <Button variant="secondary" fullWidth onClick={onStayPrivate}>
+              Stay private, reduced capability
+            </Button>
+          </div>
+        ) : (
+          <div className={styles.actions}>
+            <label htmlFor="secondary-confirm-amount" className={styles.typedAmountLabel}>
+              Type {expectedAmount} to confirm
+            </label>
+            <input
+              id="secondary-confirm-amount"
+              className={styles.typedAmountInput}
+              value={typedAmount}
+              onChange={(event) => setTypedAmount(event.target.value)}
+              inputMode="decimal"
+              autoFocus
+              autoComplete="off"
+            />
+            <Button variant="warning" fullWidth disabled={!amountMatches} onClick={onConfirm}>
+              {confirmLabel}
+            </Button>
+            <Button variant="secondary" fullWidth onClick={onStayPrivate}>
+              Stay private, reduced capability
+            </Button>
+          </div>
+        )}
+        <EscalationLog entries={log} />
+      </Modal>
+    );
+  }
 
   if (decision === 'deny') {
     return (

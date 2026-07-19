@@ -55,6 +55,58 @@
   gap: 0.5rem;
 }
 
+.titleWarning {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--color-warning);
+}
+
+.secondaryBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.9rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-warning);
+  background: var(--color-warning-bg);
+  margin-bottom: 1rem;
+}
+
+.secondaryIcon {
+  font-size: 1.15rem;
+  line-height: 1;
+  color: var(--color-warning);
+}
+
+.secondaryTitle {
+  color: var(--color-warning);
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin: 0 0 0.25rem;
+}
+
+.secondaryBody {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.typedAmountLabel {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+}
+
+.typedAmountInput {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  padding: 0.55em 0.75em;
+  border-radius: 6px;
+  border: 1px solid var(--color-warning);
+  background: transparent;
+  color: var(--color-text-primary);
+}
+
 .blockedBanner {
   display: flex;
   flex-direction: column;

@@ -28,6 +28,24 @@ export const ESCALATION_SCENARIOS: readonly EscalationScenario[] = [
       { label: 'Destination', value: 'External bank account ····4471' },
       { label: 'Reason', value: 'Invoice #A-2291 settlement' },
     ],
+    actionText: 'Send $340 to 0x4f2...9a1',
+  },
+  {
+    id: 'large-wire-transfer',
+    request: {
+      id: 'esc-money-2',
+      category: 'money',
+      description: 'Wire $5,000.00 to an external bank account, above the session spend limit',
+      amountCents: 500_000,
+      currency: 'USD',
+      amountWei: 2_000_000_000_000_000_000n,
+    },
+    dataDisclosure: [
+      { label: 'Amount', value: '$5,000.00 USD' },
+      { label: 'Destination', value: 'External bank account ····9a1' },
+      { label: 'Reason', value: 'Vendor settlement above spend-limit threshold' },
+    ],
+    actionText: 'Send $5,000 to 0x4f2...9a1',
   },
   {
     id: 'swap-tokens',

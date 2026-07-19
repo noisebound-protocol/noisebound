@@ -12,6 +12,15 @@ const MONEY_REQUEST: EscalationRequest = {
   currency: 'USD',
 };
 
+const LARGE_MONEY_REQUEST: EscalationRequest = {
+  id: 'esc-money-2',
+  category: 'money',
+  description: 'Wire $5,000.00 to an external bank account, above the session spend limit',
+  amountCents: 500_000,
+  currency: 'USD',
+  amountWei: 2_000_000_000_000_000_000n,
+};
+
 const SWAP_REQUEST: EscalationRequest = {
   id: 'esc-swap-1',
   category: 'irreversible-action',
@@ -129,5 +138,104 @@ describe('EscalationDialog', () => {
     expect(screen.getByText('From')).toBeInTheDocument();
     expect(screen.getByText('0.5 ETH')).toBeInTheDocument();
     expect(screen.getByText('Router')).toBeInTheDocument();
+  });
+
+  it('shows a visibly higher-friction UI for a secondary-confirmation (above-spend-limit) request', () => {
+    render(
+      <EscalationDialog
+        request={LARGE_MONEY_REQUEST}
+        dataDisclosure={[{ label: 'Amount', value: '$5,000.00 USD' }]}
+        actionText="Send $5,000 to 0x4f2...9a1"
+        log={[]}
+        onConfirm={vi.fn()}
+        onStayPrivate={vi.fn()}
+        onAcknowledgeBlocked={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText(/extra confirmation required/i)).toBeInTheDocument();
+    expect(screen.getByText(/exceeds your spend-limit threshold/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Send $5,000 to 0x4f2...9a1' }),
+    ).toBeInTheDocument();
+    // No typed-amount field yet — that only appears once the first tap arms the secondary confirmation.
+    expect(screen.queryByLabelText(/type .* to confirm/i)).not.toBeInTheDocument();
+  });
+
+  it('does not confirm a secondary-confirmation request on a single tap alone', async () => {
+    const user = userEvent.setup();
+    const onConfirm = vi.fn();
+
+    render(
+      <EscalationDialog
+        request={LARGE_MONEY_REQUEST}
+        dataDisclosure={[]}
+        actionText="Send $5,000 to 0x4f2...9a1"
+        log={[]}
+        onConfirm={onConfirm}
+        onStayPrivate={vi.fn()}
+        onAcknowledgeBlocked={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Send $5,000 to 0x4f2...9a1' }));
+
+    expect(onConfirm).not.toHaveBeenCalled();
+    expect(screen.getByLabelText(/type 5000\.00 to confirm/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Send $5,000 to 0x4f2...9a1' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Confirm' })).not.toBeInTheDocument();
+  });
+
+  it('confirms a secondary-confirmation request only once the typed amount matches', async () => {
+    const user = userEvent.setup();
+    const onConfirm = vi.fn();
+
+    render(
+      <EscalationDialog
+        request={LARGE_MONEY_REQUEST}
+        dataDisclosure={[]}
+        actionText="Send $5,000 to 0x4f2...9a1"
+        log={[]}
+        onConfirm={onConfirm}
+        onStayPrivate={vi.fn()}
+        onAcknowledgeBlocked={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Send $5,000 to 0x4f2...9a1' }));
+
+    const confirmButton = screen.getByRole('button', { name: 'Send $5,000 to 0x4f2...9a1' });
+    const amountInput = screen.getByLabelText(/type 5000\.00 to confirm/i);
+
+    await user.type(amountInput, '340.00');
+    expect(confirmButton).toBeDisabled();
+    expect(onConfirm).not.toHaveBeenCalled();
+
+    await user.clear(amountInput);
+    await user.type(amountInput, '5000.00');
+    expect(confirmButton).toBeEnabled();
+
+    await user.click(confirmButton);
+    expect(onConfirm).toHaveBeenCalledOnce();
+  });
+
+  it('lets the user stay private instead of arming a secondary confirmation', async () => {
+    const user = userEvent.setup();
+    const onStayPrivate = vi.fn();
+
+    render(
+      <EscalationDialog
+        request={LARGE_MONEY_REQUEST}
+        dataDisclosure={[]}
+        actionText="Send $5,000 to 0x4f2...9a1"
+        log={[]}
+        onConfirm={vi.fn()}
+        onStayPrivate={onStayPrivate}
+        onAcknowledgeBlocked={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Stay private, reduced capability' }));
+    expect(onStayPrivate).toHaveBeenCalledOnce();
   });
 });
