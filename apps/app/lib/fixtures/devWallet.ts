@@ -1,7 +1,7 @@
-import type { FunderWallet } from '@noisebound/pqc-wallet';
+﻿import type { FunderWallet } from '@noisebound/pqc-wallet';
 
 /**
- * DEVELOPMENT FIXTURE — stands in for a real funding/paymaster integration.
+ * DEVELOPMENT FIXTURE â€” stands in for a real funding/paymaster integration.
  * The key below is Hardhat's well-known account #0 test key: public,
  * intentionally unfunded on real networks, safe to commit. This entire
  * module is placeholder infrastructure for local development; a real
@@ -16,4 +16,4 @@ export function getDevFunderWallet(): FunderWallet {
 }
 
 /** Gas top-up sent to every newly issued session key in the dev fixture. */
-export const DEV_SESSION_FUNDING_WEI = 2_000_000_000_000_000n;
+export const DEV_SESSION_FUNDING_WEI = 30_000_000_000_000n; // ~0.00003 ETH -- Base Sepolia gas is near-zero; this is a gas top-up, not a spend amount
