@@ -20,9 +20,15 @@ importers:
       '@noisebound/identity':
         specifier: workspace:*
         version: link:../../packages/identity
+      '@noisebound/memory-store':
+        specifier: workspace:*
+        version: link:../../packages/memory-store
       '@noisebound/networks':
         specifier: workspace:*
         version: link:../../packages/networks
+      '@noisebound/observe-loop':
+        specifier: workspace:*
+        version: link:../../packages/observe-loop
       '@noisebound/pqc-wallet':
         specifier: workspace:*
         version: link:../../packages/pqc-wallet

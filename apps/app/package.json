@@ -12,7 +12,9 @@
   },
   "dependencies": {
     "@noisebound/identity": "workspace:*",
+    "@noisebound/memory-store": "workspace:*",
     "@noisebound/networks": "workspace:*",
+    "@noisebound/observe-loop": "workspace:*",
     "@noisebound/pqc-wallet": "workspace:*",
     "@noisebound/sigma-core": "workspace:*",
     "@noisebound/sigma-execute": "workspace:*",
