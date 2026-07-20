@@ -43,7 +43,7 @@ inference actions.
 
 - `evaluateAction(request: ActionRequest, clock: Clock): ExecutionOutcome` — runs a request through sigma-core's escalation policy; returns `denied` or `awaiting-confirmation` (never executes).
 - `executeConfirmedAction(request, sessionCapability, registry: ExecutionRegistry, clock): Promise<ExecutionOutcome>` — re-validates the session capability at execution time (failing closed if expired/revoked), then executes the request; returns `executed` or `execution-failed`.
-- `buildConfirmationSummary(request: ActionRequest): string` — builds the human-readable confirmation text for a request (e.g. `"Send $12.34 (USDC) to 0x1234...abc"` or `"Run cloud inference request \"...\""`).
+- `buildConfirmationSummary(request: ActionRequest): string` — builds the human-readable confirmation text for a request (e.g. `"Send 0.5 ETH to 0x1234...abc"` or `"Run cloud inference request \"...\""`).
 - `createEthersOnChainExecutor(resolveSessionKey: SessionKeyResolver): OnChainExecutor` — builds an `OnChainExecutor` that signs (locally, via `ethers.Wallet`, never touching the network) and broadcasts a real native-token transfer on the currently active network (`@noisebound/networks`). Validates balance against amount + estimated gas before broadcasting.
 
 ### Errors (thrown by `createEthersOnChainExecutor`'s executor)

@@ -13,6 +13,8 @@ import { NOTIFICATION_FIXTURES } from '../../lib/fixtures/notificationFixtures';
 import { appendEscalationLogEntry, loadEscalationLog } from '../../lib/escalationLogStore';
 import { processNotificationFixtures } from '../../lib/notifications';
 import { executeOnChainMoneyAction } from '../../app/actions/onChainExecution';
+import { pickPrimaryCapability } from '../../lib/sessionCapabilities';
+import { loadStoredSessionCapabilities } from '../../lib/sessionStore';
 import type { EscalationLogEntry } from '../../lib/types';
 import { Panel } from '../ui/Panel';
 import { Button } from '../ui/Button';
@@ -62,16 +64,33 @@ export function NotificationsPageClient() {
     const { request } = activeAction;
     if (request.kind !== 'on-chain-money') return;
 
-    try {
-      const txHash = await executeOnChainMoneyAction({
-        id: request.id,
-        description: request.description,
-        amountCents: request.amountCents,
-        currency: request.currency,
-        amountWei: request.amountWei.toString(),
-        recipient: request.recipient,
-        asset: request.asset,
+    const primaryCapability = pickPrimaryCapability(loadStoredSessionCapabilities(), Date.now());
+    if (!primaryCapability) {
+      setActiveAction({
+        request,
+        outcome: {
+          status: 'execution-failed',
+          requestId: request.id,
+          reason: 'No active session key — issue one on the Sessions page before sending.',
+          timestamp: new Date(),
+        },
       });
+      return;
+    }
+
+    try {
+      const txHash = await executeOnChainMoneyAction(
+        {
+          id: request.id,
+          description: request.description,
+          amountCents: request.amountCents,
+          currency: request.currency,
+          amountWei: request.amountWei.toString(),
+          recipient: request.recipient,
+          asset: request.asset,
+        },
+        { payload: primaryCapability.payload, signature: primaryCapability.signature },
+      );
       setActiveAction({
         request,
         outcome: {

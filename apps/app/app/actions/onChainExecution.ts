@@ -2,7 +2,9 @@
 
 import 'server-only';
 import type { OnChainMoneyActionRequest } from '@noisebound/sigma-execute';
+import { base64ToBytes } from '../../lib/base64';
 import { createRealOnChainExecutor, executeRealOnChainAction } from '../../lib/realOnChainExecutor';
+import type { SerializedSessionCapability } from '../../lib/types';
 
 /**
  * Wire form of a confirmed OnChainMoneyActionRequest — amountWei as a string
@@ -22,10 +24,14 @@ export interface ExecuteOnChainMoneyActionInput {
 /**
  * Signs and broadcasts a confirmed on-chain-money action for real, resolving
  * the session key server-side so its private key never crosses into the
- * browser. The single injection point for the real vs. mock executor.
+ * browser. `sessionCapability` is the caller's real, currently-active issued
+ * session capability (see /sessions) — the private key it authorizes lives
+ * only in the server-side session key registry. The single injection point
+ * for the real vs. mock executor.
  */
 export async function executeOnChainMoneyAction(
   input: ExecuteOnChainMoneyActionInput,
+  sessionCapability: SerializedSessionCapability,
 ): Promise<`0x${string}`> {
   const request: OnChainMoneyActionRequest = {
     kind: 'on-chain-money',
@@ -39,5 +45,8 @@ export async function executeOnChainMoneyAction(
   };
 
   const executor = createRealOnChainExecutor();
-  return executeRealOnChainAction(request, executor);
+  return executeRealOnChainAction(request, executor, {
+    payload: sessionCapability.payload,
+    signature: base64ToBytes(sessionCapability.signature),
+  });
 }

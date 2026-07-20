@@ -41,11 +41,11 @@ describe('createRealOnChainExecutor', () => {
 });
 
 describe('executeRealOnChainAction', () => {
-  it('sends the request through the given executor with the demo session capability', async () => {
+  it('sends the request through the given executor with the caller-supplied session capability', async () => {
     const send = vi.fn().mockResolvedValue('0xdeadbeef');
     const executor: OnChainExecutor = { send };
 
-    const txHash = await executeRealOnChainAction(REQUEST, executor);
+    const txHash = await executeRealOnChainAction(REQUEST, executor, DEMO_SESSION_CAPABILITY);
 
     expect(send).toHaveBeenCalledWith(REQUEST, DEMO_SESSION_CAPABILITY);
     expect(txHash).toBe('0xdeadbeef');
