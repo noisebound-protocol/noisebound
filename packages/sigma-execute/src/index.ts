@@ -6,6 +6,7 @@ export type {
   ExecutionOutcome,
   DeniedOutcome,
   AwaitingConfirmationOutcome,
+  RequiresSecondaryConfirmationOutcome,
   ConfirmationPayload,
   ExecutedOutcome,
   ExecutionFailedOutcome,

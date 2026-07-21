@@ -15,7 +15,10 @@ interface BaseActionRequest {
 
 /**
  * An on-chain transfer of value. Always maps to sigma-core's 'money'
- * escalation category, which unconditionally denies — see evaluateAction.
+ * escalation category, which never auto-executes — see evaluateAction. It
+ * comes back as 'require-confirmation' by default, or
+ * 'require-secondary-confirmation' once amountWei exceeds the configured
+ * spend threshold.
  */
 export interface OnChainMoneyActionRequest extends BaseActionRequest {
   readonly kind: 'on-chain-money';
@@ -80,6 +83,14 @@ export interface AwaitingConfirmationOutcome {
   readonly timestamp: Date;
 }
 
+/** A money action above the spend threshold — needs a second, explicit type-to-confirm step beyond {@link AwaitingConfirmationOutcome}. */
+export interface RequiresSecondaryConfirmationOutcome {
+  readonly status: 'requires-secondary-confirmation';
+  readonly requestId: string;
+  readonly confirmation: ConfirmationPayload;
+  readonly timestamp: Date;
+}
+
 export interface OnChainExecutionResult {
   readonly kind: 'on-chain-money';
   readonly txHash: `0x${string}`;
@@ -111,6 +122,7 @@ export interface ExecutionFailedOutcome {
 export type ExecutionOutcome =
   | DeniedOutcome
   | AwaitingConfirmationOutcome
+  | RequiresSecondaryConfirmationOutcome
   | ExecutedOutcome
   | ExecutionFailedOutcome;
 

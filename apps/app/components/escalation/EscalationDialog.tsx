@@ -6,14 +6,10 @@ import type { EscalationRequest } from '@noisebound/sigma-core';
 import { Button } from '../ui/Button';
 import { Modal } from '../ui/Modal';
 import type { EscalationDataDisclosureItem, EscalationLogEntry } from '../../lib/types';
+import { formatExpectedAmount } from '../../lib/format';
 import { EscalationLog } from './EscalationLog';
 import { PrivateZoneIndicator } from './PrivateZoneIndicator';
 import styles from './EscalationDialog.module.css';
-
-/** Formats cents as the plain decimal string a user must retype to arm a secondary confirmation, e.g. 34000 -> "340.00". */
-function formatExpectedAmount(amountCents: number): string {
-  return (amountCents / 100).toFixed(2);
-}
 
 export interface EscalationDialogProps {
   readonly request: EscalationRequest;

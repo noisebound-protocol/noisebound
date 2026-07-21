@@ -12,6 +12,7 @@ function toEscalationRequest(request: ActionRequest): EscalationRequest {
         description: request.description,
         amountCents: request.amountCents,
         currency: request.currency,
+        amountWei: request.amountWei,
       };
     case 'cloud-inference':
       return {
@@ -26,8 +27,9 @@ function toEscalationRequest(request: ActionRequest): EscalationRequest {
 /**
  * Runs a proposed action through sigma-core's escalation policy. Money
  * actions that hard-deny stop here; everything else that needs a human in
- * the loop comes back as 'awaiting-confirmation' carrying the real
- * confirmation text — actual execution only happens via
+ * the loop comes back as 'awaiting-confirmation' — or, for a money request
+ * above the spend threshold, 'requires-secondary-confirmation' — carrying
+ * the real confirmation text. Actual execution only happens via
  * executeConfirmedAction, once a human has approved that payload.
  */
 export function evaluateAction(request: ActionRequest, clock: Clock): ExecutionOutcome {
@@ -43,13 +45,24 @@ export function evaluateAction(request: ActionRequest, clock: Clock): ExecutionO
     };
   }
 
+  const confirmation = {
+    requestId: request.id,
+    summary: buildConfirmationSummary(request),
+  };
+
+  if (decision === 'require-secondary-confirmation') {
+    return {
+      status: 'requires-secondary-confirmation',
+      requestId: request.id,
+      confirmation,
+      timestamp,
+    };
+  }
+
   return {
     status: 'awaiting-confirmation',
     requestId: request.id,
-    confirmation: {
-      requestId: request.id,
-      summary: buildConfirmationSummary(request),
-    },
+    confirmation,
     timestamp,
   };
 }

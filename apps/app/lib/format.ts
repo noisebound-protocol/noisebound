@@ -28,6 +28,11 @@ export function formatCentsAsCurrency(cents: number, currency: string): string {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(cents / 100);
 }
 
+/** Formats cents as the plain decimal string a user must retype to arm a secondary confirmation, e.g. 34000 -> "340.00". */
+export function formatExpectedAmount(amountCents: number): string {
+  return (amountCents / 100).toFixed(2);
+}
+
 export function formatTimestamp(ms: number): string {
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',

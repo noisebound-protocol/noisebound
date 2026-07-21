@@ -20,12 +20,24 @@ describe('evaluateAction', () => {
       expect(outcome.status).toBe('awaiting-confirmation');
     });
 
-    it('requires confirmation for a large money transfer', () => {
+    it('requires confirmation for a money transfer at, but not above, the spend threshold', () => {
+      const outcome = evaluateAction(
+        buildOnChainMoneyRequest({ amountWei: 1_000_000_000_000_000_000n }),
+        clock,
+      );
+      expect(outcome.status).toBe('awaiting-confirmation');
+    });
+
+    it('requires secondary confirmation for a money transfer above the spend threshold', () => {
       const outcome = evaluateAction(
         buildOnChainMoneyRequest({ amountCents: 100_000_000, amountWei: 10n ** 24n }),
         clock,
       );
-      expect(outcome.status).toBe('awaiting-confirmation');
+      expect(outcome.status).toBe('requires-secondary-confirmation');
+      if (outcome.status === 'requires-secondary-confirmation') {
+        expect(outcome.confirmation.requestId).toBe('action-money-1');
+        expect(outcome.confirmation.summary).toMatch(/^Send /);
+      }
     });
 
     it('requires confirmation for a money transfer regardless of currency or asset', () => {

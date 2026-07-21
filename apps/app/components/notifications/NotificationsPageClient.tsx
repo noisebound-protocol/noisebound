@@ -60,7 +60,13 @@ export function NotificationsPageClient() {
   }
 
   async function handleConfirmAction() {
-    if (!activeAction || activeAction.outcome.status !== 'awaiting-confirmation') return;
+    if (
+      !activeAction ||
+      (activeAction.outcome.status !== 'awaiting-confirmation' &&
+        activeAction.outcome.status !== 'requires-secondary-confirmation')
+    ) {
+      return;
+    }
     const { request } = activeAction;
     if (request.kind !== 'on-chain-money') return;
 
@@ -212,6 +218,7 @@ export function NotificationsPageClient() {
                 dismissAction('blocked');
                 return;
               case 'awaiting-confirmation':
+              case 'requires-secondary-confirmation':
                 dismissAction('declined');
                 return;
               default:
