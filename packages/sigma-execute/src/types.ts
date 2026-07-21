@@ -43,6 +43,23 @@ export interface CloudInferenceActionRequest extends BaseActionRequest {
  */
 export type ActionRequest = OnChainMoneyActionRequest | CloudInferenceActionRequest;
 
+/**
+ * The shape a model/agent actually produces for an on-chain money request:
+ * `amount` is a decimal ETH string (e.g. "0.001"), never wei — an LLM
+ * cannot reliably do exact 10^18 big-integer arithmetic (see
+ * packages/model-eval), so wei conversion must never be model output. This
+ * is not a trusted {@link OnChainMoneyActionRequest}; it must be converted
+ * via `fromAgentMoneyAction` before evaluation or execution logic sees it.
+ */
+export interface AgentMoneyActionRequest {
+  readonly kind: 'on-chain-money';
+  readonly id: string;
+  readonly description: string;
+  readonly recipient: `0x${string}`;
+  readonly amount: string;
+  readonly asset: string;
+}
+
 export interface DeniedOutcome {
   readonly status: 'denied';
   readonly requestId: string;

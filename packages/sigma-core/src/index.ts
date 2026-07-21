@@ -1,6 +1,8 @@
 export type { Clock } from './clock.js';
 export { SystemClock, elapsedMs } from './clock.js';
 
+export { ethToWei } from './money.js';
+
 export type {
   EscalationRequest,
   MoneyEscalationRequest,
