@@ -1,5 +1,6 @@
 export type {
   ActionRequest,
+  AgentMoneyActionRequest,
   OnChainMoneyActionRequest,
   CloudInferenceActionRequest,
   ExecutionOutcome,
@@ -16,6 +17,7 @@ export type {
 } from './types.js';
 
 export { evaluateAction } from './evaluate.js';
+export { evaluateAgentAction, fromAgentMoneyAction } from './agentAction.js';
 export { executeConfirmedAction } from './execute.js';
 export { buildConfirmationSummary } from './confirmation.js';
 export {
