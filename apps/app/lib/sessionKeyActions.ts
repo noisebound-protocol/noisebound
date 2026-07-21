@@ -10,7 +10,7 @@ import type {
   SessionCapabilityScope,
 } from '@noisebound/pqc-wallet';
 import type { IdentityKeyPair } from '@noisebound/identity';
-import { DEV_SESSION_FUNDING_WEI, getDevFunderWallet } from './fixtures/devWallet';
+import { computeDevSessionFundingWei, getDevFunderWallet } from './fixtures/devWallet';
 import { registerSessionKey } from './sessionKeyRegistry';
 
 /**
@@ -18,6 +18,11 @@ import { registerSessionKey } from './sessionKeyRegistry';
  * can later resolve it by address, then issues and gas-funds a capability
  * for it. The session key's own private key is never returned — this UI
  * layer only ever needs the resulting capability and its on-chain address.
+ *
+ * The funding amount scales with the requested scope (see
+ * `computeDevSessionFundingWei`) instead of a fixed gas top-up, so a session
+ * key authorized to spend a meaningful amount actually receives enough
+ * balance to use that authorization.
  */
 export async function issueNewSessionCapability(
   identityKeyPair: IdentityKeyPair,
@@ -33,7 +38,7 @@ export async function issueNewSessionCapability(
     scope,
     ttlMs,
     funderWallet,
-    DEV_SESSION_FUNDING_WEI,
+    computeDevSessionFundingWei(scope),
   );
 }
 

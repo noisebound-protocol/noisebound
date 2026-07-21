@@ -40,9 +40,12 @@ vi.mock('@noisebound/pqc-wallet', () => ({
   revokeSessionCapability: (...args: unknown[]) => revokeSessionCapability(...(args as [])),
 }));
 
+const computeDevSessionFundingWei = vi.fn(() => 2_000_000_000_000_000n);
+
 vi.mock('../fixtures/devWallet', () => ({
   getDevFunderWallet: () => ({ privateKey: '0xfunderprivatekey' }),
-  DEV_SESSION_FUNDING_WEI: 2_000_000_000_000_000n,
+  computeDevSessionFundingWei: (...args: unknown[]) =>
+    computeDevSessionFundingWei(...(args as [])),
 }));
 
 const registerSessionKey = vi.fn();
@@ -66,6 +69,7 @@ describe('issueNewSessionCapability', () => {
     const result = await issueNewSessionCapability(identityKeyPair, scope, ttlMs);
 
     expect(generateSessionKey).toHaveBeenCalledOnce();
+    expect(computeDevSessionFundingWei).toHaveBeenCalledWith(scope);
     expect(issueAndFundSessionCapability).toHaveBeenCalledWith(
       identityKeyPair,
       mockSessionKey.publicKey,
