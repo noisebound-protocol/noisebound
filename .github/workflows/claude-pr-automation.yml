@@ -1,0 +1,99 @@
+name: Claude PR Automation
+
+# Phase 1 internal automation. Comment-only: this workflow must never merge,
+# close, approve, push commits, or edit repository files. Every output is a
+# PR comment for a human to read, edit, or ignore.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: claude-pr-automation-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review-and-draft:
+    name: AI review, changelog draft, docs-sync check
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    # Best-effort: a failure here must never block or fail the PR's checks.
+    continue-on-error: true
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Claude review, changelog draft, and docs-sync check
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: |
+            --max-turns 20
+            --allowedTools "Read,Grep,Glob,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(git log:*),Bash(git diff:*),Bash(git show:*),Bash(ls:*),Bash(find:*)"
+            --disallowedTools "Edit,MultiEdit,Write,NotebookEdit,Bash(gh pr merge:*),Bash(gh pr close:*),Bash(gh pr edit:*),Bash(gh pr review:*),Bash(gh api:*),Bash(git push:*),Bash(git commit:*),Bash(git checkout:*),Bash(git reset:*),Bash(rm:*)"
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+            BASE BRANCH: ${{ github.event.pull_request.base.ref }}
+
+            The PR branch is already checked out in the current working directory
+            with full history (fetch-depth: 0). Do not modify any files — you have
+            no Edit/Write tools available. Your only job is to read the diff and
+            post PR comments with `gh pr comment`. Never use `gh pr merge`,
+            `gh pr close`, `gh pr edit`, or `gh pr review` — you do not have
+            permission to change PR state, only to comment on it.
+
+            Get the changed files and diff with:
+              gh pr diff ${{ github.event.pull_request.number }} --name-only
+              gh pr diff ${{ github.event.pull_request.number }}
+              git log --oneline origin/${{ github.event.pull_request.base.ref }}..HEAD
+
+            Do the following three things, then post exactly TWO comments total
+            (do not post more, do not post progress/status comments):
+
+            === Comment 1: Code review + docs-sync flag ===
+
+            Post one comment via `gh pr comment ${{ github.event.pull_request.number }} --body-file -`
+            (or --body) starting with the heading `## 🤖 Claude PR Review` that contains:
+
+            1. A concise code review focused on:
+               - Code quality and obvious bugs
+               - Test coverage gaps (new/changed logic with no corresponding test changes)
+               - Anything else clearly wrong or risky
+               Keep it short and skip sections with nothing to say — don't pad the
+               comment with boilerplate praise.
+
+            2. A "Docs sync" subsection: for each top-level package under `packages/*`
+               or app under `apps/*`, check whether this PR changes source files inside
+               that package/app (e.g. anything under `packages/<name>/src/` or other
+               non-test, non-config source files) without also changing that package's
+               `README.md`. If so, flag it explicitly, e.g.:
+               "⚠️ `packages/sigma-execute/` source changed but `packages/sigma-execute/README.md` was not updated — please confirm docs are still accurate."
+               If every touched package's docs are in sync (or no package source changed),
+               state that explicitly and briefly instead of omitting the section.
+
+            This comment is informational only — never treat it as a blocking check,
+            and do not imply the PR is blocked.
+
+            === Comment 2: Draft changelog / ship-post entry ===
+
+            Post a second, separate comment starting with the heading
+            `## 📝 Draft changelog entry (unpublished — review before use)` followed by
+            a note that this is a machine-generated draft that a human must approve,
+            edit, or discard, and that nothing here is published automatically.
+
+            Then draft a short changelog/ship-post entry summarizing what this PR does,
+            based on the PR title, description, and its commit log. Write it for an
+            external/internal audience (whichever fits the PR), in plain prose or a
+            short bullet list — a few sentences to a short paragraph is usually enough.
+            Do not invent functionality that isn't actually in the diff.
+
+      - name: Note if the automation step failed
+        if: failure() || cancelled()
+        run: |
+          echo "::warning::Claude PR automation did not complete successfully. This is non-blocking and does not affect PR mergeability."
