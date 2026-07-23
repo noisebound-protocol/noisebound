@@ -18,6 +18,7 @@ export function AppShell({ children }: AppShellProps) {
           <Link href="/dashboard">Dashboard</Link>
           <Link href="/sessions">Session keys</Link>
           <Link href="/notifications">Notifications</Link>
+          <Link href="/feedback">Feedback</Link>
         </div>
         <div className={styles.right}>
           <PrivateZoneIndicator />
