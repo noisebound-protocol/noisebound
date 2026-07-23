@@ -24,6 +24,21 @@ export interface MoneyEscalationRequest extends BaseEscalationRequest {
   readonly amountCents: number;
   readonly currency: string;
   readonly amountWei?: bigint;
+  /**
+   * Whether the recipient has been seen before by this user/session, per a
+   * recipient-safety guard run ahead of escalation (e.g. sigma-execute's
+   * `checkRecipientSafety`). `undefined` means no guard result was supplied
+   * (novelty is not considered); `false` means the guard explicitly flagged
+   * the recipient as unverified, which is treated as elevated risk.
+   */
+  readonly isKnownRecipient?: boolean | undefined;
+  /**
+   * A short machine-readable reason a recipient-safety guard flagged this
+   * request's recipient (e.g. a burn-address or malformed-address pattern),
+   * or `null`/`undefined` if the guard found nothing. Any non-empty value
+   * here is treated as disqualifying — see {@link evaluateEscalation}.
+   */
+  readonly flaggedPattern?: string | null;
 }
 
 /** An escalation request that does not touch real money. */
@@ -74,12 +89,24 @@ export interface EscalationConfirmation {
  * amount. There is no field on {@link MoneyEscalationRequest} that can skip
  * this — the only way a money action ever executes is through
  * {@link confirmEscalation} after a human has actually confirmed it.
+ *
+ * A recipient-safety guard result, if supplied, is consulted before the
+ * spend-threshold check: a flagged pattern (burn address, malformed
+ * address, etc.) hard-denies the request, and a recipient explicitly marked
+ * as not known escalates straight to secondary confirmation regardless of
+ * amount.
  */
 export function evaluateEscalation(
   request: EscalationRequest,
   options: MoneyEscalationOptions = DEFAULT_MONEY_ESCALATION_OPTIONS,
 ): EscalationDecision {
   if (request.category === 'money') {
+    if (request.flaggedPattern) {
+      return 'deny';
+    }
+    if (request.isKnownRecipient === false) {
+      return 'require-secondary-confirmation';
+    }
     if (request.amountWei !== undefined && request.amountWei > options.maxSpendWei) {
       return 'require-secondary-confirmation';
     }

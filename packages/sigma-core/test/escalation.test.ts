@@ -50,7 +50,9 @@ describe('evaluateEscalation', () => {
   it('has no way in the type system to mark a money request as pre-approved', () => {
     // MoneyEscalationRequest intentionally has no override/allow field.
     // This assertion documents that guarantee: the only fields available
-    // are id, description, category, amountCents, currency, and amountWei.
+    // are id, description, category, amountCents, currency, amountWei, and
+    // the recipient-safety guard signal (isKnownRecipient/flaggedPattern),
+    // none of which can ever push the decision to 'allow'.
     const request: MoneyEscalationRequest = {
       id: 'esc-4',
       description: 'Attempted override',
@@ -63,6 +65,64 @@ describe('evaluateEscalation', () => {
     const keys = Object.keys(request).sort();
     expect(keys).toEqual(['amountCents', 'amountWei', 'category', 'currency', 'description', 'id']);
     expect(evaluateEscalation(request)).not.toBe('allow');
+  });
+
+  it('denies a money escalation whose recipient was flagged by a safety guard', () => {
+    const request: MoneyEscalationRequest = {
+      id: 'esc-13',
+      description: 'Send to a flagged recipient',
+      category: 'money',
+      amountCents: 100,
+      currency: 'USD',
+      amountWei: 1n,
+      flaggedPattern: 'burn-address-dead',
+    };
+
+    expect(evaluateEscalation(request)).toBe('deny');
+  });
+
+  it('requires secondary confirmation for a small money escalation to a recipient not known to be safe', () => {
+    const request: MoneyEscalationRequest = {
+      id: 'esc-14',
+      description: 'Send to a first-time recipient',
+      category: 'money',
+      amountCents: 100,
+      currency: 'USD',
+      amountWei: 1n,
+      isKnownRecipient: false,
+    };
+
+    expect(evaluateEscalation(request)).toBe('require-secondary-confirmation');
+  });
+
+  it('requires only single confirmation for a small money escalation to a known recipient', () => {
+    const request: MoneyEscalationRequest = {
+      id: 'esc-15',
+      description: 'Send to a previously-seen recipient',
+      category: 'money',
+      amountCents: 100,
+      currency: 'USD',
+      amountWei: 1n,
+      isKnownRecipient: true,
+    };
+
+    expect(evaluateEscalation(request)).toBe('require-confirmation');
+  });
+
+  it('does not treat an unresolved recipient-safety signal as novel', () => {
+    // isKnownRecipient/flaggedPattern both omitted: no guard result was
+    // supplied at all, so the ordinary spend-threshold logic applies
+    // unchanged (this is the pre-guard behavior existing callers rely on).
+    const request: MoneyEscalationRequest = {
+      id: 'esc-16',
+      description: 'Wire $500 to a vendor',
+      category: 'money',
+      amountCents: 50_000,
+      currency: 'USD',
+      amountWei: 10n ** 15n,
+    };
+
+    expect(evaluateEscalation(request, { maxSpendWei: 10n ** 18n })).toBe('require-confirmation');
   });
 
   it('allows a non-money escalation that does not require disclosure', () => {
