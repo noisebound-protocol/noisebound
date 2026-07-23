@@ -1,6 +1,7 @@
 import { ethToWei } from '@noisebound/sigma-core';
 import type { Clock } from '@noisebound/sigma-core';
 import { evaluateAction } from './evaluate.js';
+import type { RecipientHistory } from './recipientSafety.js';
 import type { AgentMoneyActionRequest, ExecutionOutcome, OnChainMoneyActionRequest } from './types.js';
 
 /**
@@ -32,8 +33,14 @@ export function fromAgentMoneyAction(request: AgentMoneyActionRequest): OnChainM
  * request, converts its decimal amount to wei deterministically, and only
  * then runs it through the same escalation policy as any other action.
  * Validation/conversion of the amount always happens before escalation or
- * execution logic ever sees it.
+ * execution logic ever sees it. `recipientHistory`, if supplied, is passed
+ * straight through to {@link evaluateAction} for the recipient-safety
+ * guard's novelty gate.
  */
-export function evaluateAgentAction(request: AgentMoneyActionRequest, clock: Clock): ExecutionOutcome {
-  return evaluateAction(fromAgentMoneyAction(request), clock);
+export function evaluateAgentAction(
+  request: AgentMoneyActionRequest,
+  clock: Clock,
+  recipientHistory?: RecipientHistory,
+): ExecutionOutcome {
+  return evaluateAction(fromAgentMoneyAction(request), clock, recipientHistory);
 }
