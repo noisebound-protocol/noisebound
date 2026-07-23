@@ -21,6 +21,8 @@ export { evaluateAction } from './evaluate.js';
 export { evaluateAgentAction, fromAgentMoneyAction } from './agentAction.js';
 export { executeConfirmedAction } from './execute.js';
 export { buildConfirmationSummary } from './confirmation.js';
+export { checkRecipientSafety, createInMemoryRecipientHistory } from './recipientSafety.js';
+export type { RecipientHistory, RecipientSafetySignal, FlaggedRecipientPattern } from './recipientSafety.js';
 export {
   createEthersOnChainExecutor,
   SessionKeyNotFoundError,
