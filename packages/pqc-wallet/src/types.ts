@@ -33,6 +33,46 @@ export interface RevocationRegistry {
   isRevoked(tokenId: string): boolean;
 }
 
+/**
+ * A random-per-capability ECDSA P-256 keypair used to prove possession when
+ * σ-1 exercises a scoped web-action capability (e.g. signing an outbound
+ * HTTP request). Unlike {@link SessionKey}, this has no on-chain address —
+ * it authenticates web calls, not transactions.
+ */
+export interface WebActionKey {
+  readonly publicKey: string;
+  readonly privateKey: string;
+}
+
+/** HTTP methods a web-action capability may authorize. */
+export type WebActionMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+
+/**
+ * The origins/methods/call-budget an identity key grants to a web-action
+ * subject key. Mirrors {@link SessionCapabilityScope}'s role for on-chain
+ * session keys, but scoped to web calls instead of spend/contracts.
+ */
+export interface WebActionScope {
+  readonly allowedOrigins: readonly string[];
+  readonly allowedMethods: readonly WebActionMethod[];
+  readonly maxCalls?: number;
+}
+
+/** The data an identity key attests to when authorizing a web-action subject key. */
+export interface WebActionCapabilityPayload {
+  readonly id: string;
+  readonly subjectPublicKey: string;
+  readonly scope: WebActionScope;
+  readonly issuedAt: number;
+  readonly expiresAt: number;
+}
+
+/** An ML-DSA-65-signed grant binding a web-action subject key to a scope and expiry. */
+export interface WebActionCapability {
+  readonly payload: WebActionCapabilityPayload;
+  readonly signature: Uint8Array;
+}
+
 /** A wallet with native-token balance used to gas-fund newly issued session keys. */
 export interface FunderWallet {
   readonly privateKey: `0x${string}`;

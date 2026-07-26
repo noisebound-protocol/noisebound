@@ -1,4 +1,4 @@
-import type { RevocationRegistry, SessionCapability } from './types.js';
+import type { RevocationRegistry, SessionCapability, WebActionCapability } from './types.js';
 
 /** Creates an in-memory registry of revoked capability token ids. */
 export function createRevocationRegistry(): RevocationRegistry {
@@ -17,6 +17,14 @@ export function createRevocationRegistry(): RevocationRegistry {
 export function revokeSessionCapability(
   registry: RevocationRegistry,
   capability: SessionCapability,
+): void {
+  registry.revoke(capability.payload.id);
+}
+
+/** Marks a web-action capability as revoked in the given registry. */
+export function revokeWebActionCapability(
+  registry: RevocationRegistry,
+  capability: WebActionCapability,
 ): void {
   registry.revoke(capability.payload.id);
 }
