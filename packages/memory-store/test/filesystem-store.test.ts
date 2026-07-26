@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto';
-import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -132,24 +132,36 @@ describe('FilesystemStore', () => {
   });
 
   it('rejects path traversal in an id: writes stay inside the base directory', async () => {
-    const maliciousId = '../../etc/passwd';
+    // A random, never-before-seen directory name (rather than a real system path like
+    // /etc/passwd) keeps the escape check meaningful on every OS: /etc genuinely exists
+    // on Linux regardless of what the store does, which made the old assertion pass or
+    // fail for reasons unrelated to the store's own traversal defense.
+    const canary = `nb-traversal-canary-${randomBytes(4).toString('hex')}`;
+    const maliciousId = `../../${canary}/passwd`;
+
     const entry = encryptedFixture(clock, maliciousId, 'malicious');
     await store.put(entry);
 
-    // Nothing escaped baseDir: the parent-of-parent directory has no such file.
-    const escapedPath = join(baseDir, '..', '..', 'etc', 'passwd');
-    await expect(readFile(escapedPath, 'utf8')).rejects.toThrow();
-
-    // The entry is still retrievable through the store under its original id.
+    // The entry is still retrievable through the store's own API under its original id.
     const fetched = await store.get(maliciousId);
     expect(fetched?.id).toBe(maliciousId);
+    expect(decryptMemoryEntry(fetched as EncryptedMemoryEntry, key).content).toBe('malicious');
 
-    // Every file actually written lives directly inside baseDir.
+    // Nothing escaped baseDir: the directory two levels up (where a naive
+    // join(baseDir, maliciousId) would have landed) never gained the canary entry.
+    const escapeDir = join(baseDir, '..', '..');
+    const escapeDirEntries = await readdir(escapeDir);
+    expect(escapeDirEntries).not.toContain(canary);
+
+    // Every file actually written lives directly inside baseDir, with a filesystem-safe
+    // name: filenameForId's base64url encoding can only produce [A-Za-z0-9_-] characters,
+    // so a traversal id can never turn into a path separator or an escaping filename.
     const files = await readdir(baseDir);
     expect(files.length).toBeGreaterThan(0);
     for (const name of files) {
       expect(name).not.toContain('/');
       expect(name).not.toContain('\\');
+      expect(name).not.toContain('..');
     }
   });
 
