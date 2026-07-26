@@ -9,6 +9,8 @@ jobs:
   ci:
     name: Typecheck, build, and test
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_NOISEBOUND_NETWORK: ${{ vars.NEXT_PUBLIC_NOISEBOUND_NETWORK }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
