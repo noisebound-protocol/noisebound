@@ -30,6 +30,8 @@ jobs:
 
       - name: Build
         run: pnpm build
+        env:
+          NEXT_PUBLIC_NOISEBOUND_NETWORK: ${{ vars.NEXT_PUBLIC_NOISEBOUND_NETWORK }}
 
       - name: Test
         run: pnpm test
