@@ -1,0 +1,70 @@
+# Unsloth QLoRA fine-tuning config for σ-1's base model (Qwen3-30B-A3B).
+#
+# Unsloth is named as the ecosystem's fine-tuning tooling of choice for Qwen
+# models in docs/decisions/sigma1-base-model.md's base-model decision, so
+# training/train.py builds on it rather than a bespoke PEFT/transformers loop.
+#
+# Consumed by training/train.py. See training/README.md for exact install and
+# run commands. Regenerate training/data/{train,val}.jsonl first via:
+#   pnpm --filter @noisebound/sigma-tune generate
+
+model:
+  base_model: "Qwen/Qwen3-30B-A3B"
+  # Qwen3-30B-A3B is a ~30B-total / ~3B-active MoE model; 4-bit NF4
+  # quantization is what makes QLoRA on it feasible on a single consumer/
+  # workstation-class GPU (~24-48GB), per the base-model decision's
+  # self-host requirement.
+  load_in_4bit: true
+  max_seq_length: 4096
+  # null lets Unsloth auto-select bfloat16 on supported hardware, float16 otherwise.
+  dtype: null
+
+lora:
+  r: 16
+  lora_alpha: 32
+  # Unsloth's fused QLoRA kernels require dropout 0.0.
+  lora_dropout: 0.0
+  bias: "none"
+  # Attention projections plus the MoE expert (gate/up/down) projections —
+  # covers both the routing-independent and expert-specific weight paths.
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+  use_gradient_checkpointing: "unsloth"
+  random_state: 20260726
+
+data:
+  train_file: "training/data/train.jsonl"
+  val_file: "training/data/val.jsonl"
+  # Qwen3's own chat template — includes its native <tool_call> tag format,
+  # which is what train_on_responses_only in train.py masks around.
+  chat_template: "qwen3"
+  # Loss is computed only on assistant turns (tool_calls and final replies),
+  # never on system/user/tool content — those are context, not something to
+  # imitate token-for-token.
+  train_on_responses_only: true
+
+training:
+  output_dir: "training/output"
+  num_train_epochs: 3
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 8
+  learning_rate: 2.0e-4
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.03
+  optim: "paged_adamw_8bit"
+  weight_decay: 0.01
+  max_grad_norm: 1.0
+  logging_steps: 5
+  eval_strategy: "steps"
+  eval_steps: 25
+  save_strategy: "steps"
+  save_steps: 50
+  save_total_limit: 3
+  seed: 20260726
+  report_to: "none"
