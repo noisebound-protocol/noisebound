@@ -11,7 +11,14 @@ describe('buildExample', () => {
   it('produces at least one scenario per category', () => {
     const categories = new Set(scenarios.map((s) => s.category));
     expect(categories).toEqual(
-      new Set(['session-key-issuance', 'scoped-send', 'escalation-confirm-deny', 'prompt-injection']),
+      new Set([
+        'session-key-issuance',
+        'scoped-send',
+        'escalation-confirm-deny',
+        'prompt-injection',
+        'browser-grounded-money',
+        'recipient-reference-resolution',
+      ]),
     );
   });
 

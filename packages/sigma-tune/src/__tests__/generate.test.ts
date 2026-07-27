@@ -39,7 +39,14 @@ describe('generateDataset', () => {
   });
 
   it('covers every category in both the train and val split', () => {
-    const categories = ['session-key-issuance', 'scoped-send', 'escalation-confirm-deny', 'prompt-injection'];
+    const categories = [
+      'session-key-issuance',
+      'scoped-send',
+      'escalation-confirm-deny',
+      'prompt-injection',
+      'browser-grounded-money',
+      'recipient-reference-resolution',
+    ];
     for (const split of [dataset.train, dataset.val]) {
       const present = new Set(split.map((e) => e.category));
       for (const category of categories) {
