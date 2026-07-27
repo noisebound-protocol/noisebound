@@ -1,0 +1,31 @@
+{
+  "name": "@noisebound/sigma-browser",
+  "version": "0.0.0",
+  "private": true,
+  "description": "σ-1's browser action environment: search_web/navigate/extract_page_data tool schemas, escalation wiring onto sigma-core's non-money 'external-api' gate, and a transport-agnostic browser-automation interface (Tauri webview integration not yet implemented)",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.typecheck.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@noisebound/sigma-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^2.0.0"
+  }
+}
