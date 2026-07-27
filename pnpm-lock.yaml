@@ -162,6 +162,9 @@ importers:
 
   packages/model-eval:
     dependencies:
+      '@noisebound/sigma-browser':
+        specifier: workspace:*
+        version: link:../sigma-browser
       '@noisebound/sigma-core':
         specifier: workspace:*
         version: link:../sigma-core

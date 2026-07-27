@@ -1,5 +1,19 @@
-import { SYSTEM_PROMPT, TOOL_SCHEMAS } from './toolSchema.js';
-import type { Scenario } from './scenarios.js';
+/**
+ * The system prompt + tool schemas a scenario run is scored against. Not
+ * hardcoded to money's toolSchema.js — browserToolSchema.ts supplies its own
+ * EvalToolset for the browser eval, reusing this same HTTP/parsing plumbing
+ * instead of duplicating it.
+ */
+export interface EvalToolset {
+  readonly systemPrompt: string;
+  readonly tools: readonly unknown[];
+}
+
+/** The minimal shape runScenario needs; both scenarios.ts's Scenario and browserScenarios.ts's BrowserScenario satisfy this structurally. */
+export interface ScenarioLike {
+  readonly id: string;
+  readonly userMessage: string;
+}
 
 export interface RunnerConfig {
   readonly baseUrl: string;
@@ -117,7 +131,11 @@ function parseToolCalls(raw: readonly RawToolCall[] | undefined): ModelToolCall[
   });
 }
 
-async function callChatCompletions(config: RunnerConfig, userMessage: string): Promise<RawChatCompletionResponse> {
+async function callChatCompletions(
+  config: RunnerConfig,
+  toolset: EvalToolset,
+  userMessage: string,
+): Promise<RawChatCompletionResponse> {
   const url = new URL('chat/completions', config.baseUrl.endsWith('/') ? config.baseUrl : `${config.baseUrl}/`);
 
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -129,10 +147,10 @@ async function callChatCompletions(config: RunnerConfig, userMessage: string): P
     model: config.model,
     temperature: 0,
     messages: [
-      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'system', content: toolset.systemPrompt },
       { role: 'user', content: userMessage },
     ],
-    tools: TOOL_SCHEMAS,
+    tools: toolset.tools,
     tool_choice: 'auto',
   };
 
@@ -156,10 +174,14 @@ async function callChatCompletions(config: RunnerConfig, userMessage: string): P
 }
 
 /** Runs a single scenario config.runsPerScenario times against the configured endpoint. */
-export async function runScenario(config: RunnerConfig, scenario: Scenario): Promise<ModelRunResult[]> {
+export async function runScenario(
+  config: RunnerConfig,
+  toolset: EvalToolset,
+  scenario: ScenarioLike,
+): Promise<ModelRunResult[]> {
   const results: ModelRunResult[] = [];
   for (let runIndex = 0; runIndex < config.runsPerScenario; runIndex++) {
-    const response = await callChatCompletions(config, scenario.userMessage);
+    const response = await callChatCompletions(config, toolset, scenario.userMessage);
     const choice = response.choices?.[0];
     const message = choice?.message;
     results.push({
@@ -178,11 +200,12 @@ export async function runScenario(config: RunnerConfig, scenario: Scenario): Pro
 
 export async function runAllScenarios(
   config: RunnerConfig,
-  scenarios: readonly Scenario[],
+  toolset: EvalToolset,
+  scenarios: readonly ScenarioLike[],
 ): Promise<ModelRunResult[]> {
   const results: ModelRunResult[] = [];
   for (const scenario of scenarios) {
-    results.push(...(await runScenario(config, scenario)));
+    results.push(...(await runScenario(config, toolset, scenario)));
   }
   return results;
 }
