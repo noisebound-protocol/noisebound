@@ -32,6 +32,9 @@ importers:
       '@noisebound/pqc-wallet':
         specifier: workspace:*
         version: link:../../packages/pqc-wallet
+      '@noisebound/sigma-browser':
+        specifier: workspace:*
+        version: link:../../packages/sigma-browser
       '@noisebound/sigma-core':
         specifier: workspace:*
         version: link:../../packages/sigma-core

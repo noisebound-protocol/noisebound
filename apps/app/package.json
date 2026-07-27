@@ -16,6 +16,7 @@
     "@noisebound/networks": "workspace:*",
     "@noisebound/observe-loop": "workspace:*",
     "@noisebound/pqc-wallet": "workspace:*",
+    "@noisebound/sigma-browser": "workspace:*",
     "@noisebound/sigma-core": "workspace:*",
     "@noisebound/sigma-execute": "workspace:*",
     "ethers": "^6.17.0",

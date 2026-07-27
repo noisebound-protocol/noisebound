@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { tagAgentOwnedTab, tagUserOpenedTab } from '../tab.js';
+import { claimAgentOwnedTab, tagAgentOwnedTab, tagUserOpenedTab } from '../tab.js';
 
 describe('tab handles', () => {
   it('tags an agent-owned tab with origin agent-owned', () => {
@@ -18,5 +18,20 @@ describe('tab handles', () => {
     const agentOwned = tagAgentOwnedTab('same-id');
     const userOpened = tagUserOpenedTab('same-id');
     expect(agentOwned.origin).not.toBe(userOpened.origin);
+  });
+});
+
+describe('claimAgentOwnedTab', () => {
+  it('turns an agent-owned handle into a user-opened handle for the same tabId', () => {
+    const agentOwned = tagAgentOwnedTab('tab-3');
+    const claimed = claimAgentOwnedTab(agentOwned);
+    expect(claimed.origin).toBe('user-opened');
+    expect(claimed.tabId).toBe('tab-3');
+  });
+
+  it('does not mutate the original agent-owned handle', () => {
+    const agentOwned = tagAgentOwnedTab('tab-4');
+    claimAgentOwnedTab(agentOwned);
+    expect(agentOwned.origin).toBe('agent-owned');
   });
 });
