@@ -1,5 +1,5 @@
 export type { TabOrigin, TabHandle, AgentOwnedTabHandle, UserOpenedTabHandle } from './tab.js';
-export { tagAgentOwnedTab, tagUserOpenedTab } from './tab.js';
+export { tagAgentOwnedTab, tagUserOpenedTab, claimAgentOwnedTab } from './tab.js';
 
 export type {
   BrowserToolKind,

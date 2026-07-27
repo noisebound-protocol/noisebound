@@ -49,3 +49,19 @@ export function tagAgentOwnedTab(tabId: string): AgentOwnedTabHandle {
 export function tagUserOpenedTab(tabId: string): UserOpenedTabHandle {
   return { [TAB_BRAND]: 'user-opened', origin: 'user-opened', tabId };
 }
+
+/**
+ * The one supported origin transition (see
+ * docs/decisions/browser-tab-ui-and-origin-transitions.md, Decision #2): a
+ * user clicking into and driving a tab σ-1 opened turns it user-opened, so
+ * `evaluate.ts`'s disclosure check — which only ever inspects `origin` —
+ * starts applying to it. Produces a fresh branded handle rather than
+ * mutating the existing one, since `origin` is `readonly` by design. There
+ * is deliberately no reverse (`user-opened` -> `agent-owned`) transition:
+ * that direction would let a disclosure-requiring tab be laundered into the
+ * no-disclosure category, which is exactly what `UserOpenedTabHandle`'s
+ * lack of an opt-out field exists to prevent.
+ */
+export function claimAgentOwnedTab(handle: AgentOwnedTabHandle): UserOpenedTabHandle {
+  return { [TAB_BRAND]: 'user-opened', origin: 'user-opened', tabId: handle.tabId };
+}
